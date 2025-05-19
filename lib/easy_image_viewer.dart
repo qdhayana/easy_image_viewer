@@ -10,11 +10,10 @@ import 'src/easy_image_viewer_dismissible_dialog.dart';
 import 'src/single_image_provider.dart';
 
 export 'src/easy_image_provider.dart' show EasyImageProvider;
-export 'src/single_image_provider.dart' show SingleImageProvider;
-export 'src/multi_image_provider.dart' show MultiImageProvider;
-
 export 'src/easy_image_view.dart' show EasyImageView;
 export 'src/easy_image_view_pager.dart' show EasyImageViewPager;
+export 'src/multi_image_provider.dart' show MultiImageProvider;
+export 'src/single_image_provider.dart' show SingleImageProvider;
 
 // Defined here so we don't repeat ourselves
 const _defaultBackgroundColor = Colors.black;
@@ -42,7 +41,8 @@ Future<Dialog?> showImageViewer(
     Color backgroundColor = _defaultBackgroundColor,
     Color? barrierColor,
     String closeButtonTooltip = _defaultCloseButtonTooltip,
-    Color closeButtonColor = _defaultCloseButtonColor}) {
+    Color closeButtonColor = _defaultCloseButtonColor,
+    List<Widget>? customActions}) {
   return showImageViewerPager(context, SingleImageProvider(imageProvider),
       immersive: immersive,
       onViewerDismissed:
@@ -53,7 +53,8 @@ Future<Dialog?> showImageViewer(
       backgroundColor: backgroundColor,
       barrierColor: barrierColor,
       closeButtonTooltip: closeButtonTooltip,
-      closeButtonColor: closeButtonColor);
+      closeButtonColor: closeButtonColor,
+      customActions: customActions);
 }
 
 /// Shows the images provided by the [imageProvider] in a full-screen PageView [Dialog].
@@ -83,7 +84,8 @@ Future<Dialog?> showImageViewerPager(
     Color backgroundColor = _defaultBackgroundColor,
     Color? barrierColor,
     String closeButtonTooltip = _defaultCloseButtonTooltip,
-    Color closeButtonColor = _defaultCloseButtonColor}) {
+    Color closeButtonColor = _defaultCloseButtonColor,
+    List<Widget>? customActions}) {
   if (immersive) {
     // Hide top and bottom bars
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
@@ -103,6 +105,7 @@ Future<Dialog?> showImageViewerPager(
             infinitelyScrollable: infinitelyScrollable,
             backgroundColor: backgroundColor,
             closeButtonColor: closeButtonColor,
-            closeButtonTooltip: closeButtonTooltip);
+            closeButtonTooltip: closeButtonTooltip,
+            customActions: customActions);
       });
 }

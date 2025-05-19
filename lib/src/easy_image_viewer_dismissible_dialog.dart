@@ -19,19 +19,21 @@ class EasyImageViewerDismissibleDialog extends StatefulWidget {
   final String closeButtonTooltip;
   final Color closeButtonColor;
   final bool infinitelyScrollable;
+  final List<Widget>? customActions;
 
   /// Refer to [showImageViewerPager] for the arguments
   const EasyImageViewerDismissibleDialog(this.imageProvider,
       {super.key,
-      this.immersive = true,
-      this.onPageChanged,
-      this.onViewerDismissed,
-      this.swipeDismissible = false,
-      this.doubleTapZoomable = false,
-      this.infinitelyScrollable = false,
-      required this.backgroundColor,
-      required this.closeButtonTooltip,
-      required this.closeButtonColor});
+        this.immersive = true,
+        this.onPageChanged,
+        this.onViewerDismissed,
+        this.swipeDismissible = false,
+        this.doubleTapZoomable = false,
+        this.infinitelyScrollable = false,
+        required this.backgroundColor,
+        required this.closeButtonTooltip,
+        required this.closeButtonColor,
+        this.customActions});
 
   @override
   State<EasyImageViewerDismissibleDialog> createState() =>
@@ -78,48 +80,65 @@ class _EasyImageViewerDismissibleDialogState
   Widget build(BuildContext context) {
     // Remove this once we release v2.0.0 and can bump the minimum Flutter version to 3.13.0
     // ignore: deprecated_member_use
-    final popScopeAwareDialog = WillPopScope(
-        onWillPop: () async {
-          _handleDismissal();
-          return true;
-        },
-        key: _popScopeKey,
-        child: Dialog(
-            backgroundColor: widget.backgroundColor,
-            insetPadding: const EdgeInsets.all(0),
-            // We set the shape here to ensure no rounded corners allow any of the
-            // underlying view to show. We want the whole background to be covered.
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-            child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: <Widget>[
-                  EasyImageViewPager(
-                      easyImageProvider: widget.imageProvider,
-                      pageController: _pageController,
-                      doubleTapZoomable: widget.doubleTapZoomable,
-                      infinitelyScrollable: widget.infinitelyScrollable,
-                      onScaleChanged: (scale) {
-                        setState(() {
-                          _dismissDirection = scale <= 1.0
-                              ? DismissDirection.down
-                              : DismissDirection.none;
-                        });
-                      }),
-                  Positioned(
-                      top: 5,
-                      right: 5,
-                      child: IconButton(
-                        icon: const Icon(Icons.close),
-                        color: widget.closeButtonColor,
-                        tooltip: widget.closeButtonTooltip,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _handleDismissal();
-                        },
-                      ))
-                ])));
+    final popScopeAwareDialog = Scaffold(
+      body: WillPopScope(
+          onWillPop: () async {
+            _handleDismissal();
+            return true;
+          },
+          key: _popScopeKey,
+          child: Dialog(
+              backgroundColor: widget.backgroundColor,
+              insetPadding: const EdgeInsets.all(0),
+              // We set the shape here to ensure no rounded corners allow any of the
+              // underlying view to show. We want the whole background to be covered.
+              shape:
+              const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    EasyImageViewPager(
+                        easyImageProvider: widget.imageProvider,
+                        pageController: _pageController,
+                        doubleTapZoomable: widget.doubleTapZoomable,
+                        infinitelyScrollable: widget.infinitelyScrollable,
+                        onScaleChanged: (scale) {
+                          setState(() {
+                            _dismissDirection = scale <= 1.0
+                                ? DismissDirection.down
+                                : DismissDirection.none;
+                          });
+                        }),
+                    Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
+                          padding: const EdgeInsets.only(
+                              top: 24, bottom: 16, right: 24),
+                          color: Colors.black.withOpacity(.3),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ...?widget.customActions,
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                color: widget.closeButtonColor,
+                                tooltip: widget.closeButtonTooltip,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  _handleDismissal();
+                                },
+                              ),
+                            ],
+                          ),
+                        ))
+                  ]))),
+    );
 
     if (widget.swipeDismissible) {
       return Dismissible(
